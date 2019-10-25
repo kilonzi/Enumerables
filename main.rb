@@ -95,7 +95,6 @@ def multiply_els(arr)
   arr.my_inject(1) { |a, b| a * b }
 end
 
-#TESTS
 a = [1,2,64].my_each{|n| n}
 p a == [1,2,64]
 c = multiply_els([2, 4, 5])
