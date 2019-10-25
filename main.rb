@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-module Enumerable # rubocop:disable Metrics/ModuleLength
+module Enumerable
 
     def my_each
       raise LocalJumpError, 'You have not given a block to the method' unless block_given?
@@ -91,7 +91,6 @@ module Enumerable # rubocop:disable Metrics/ModuleLength
       accumulator
     end
 end
-# rubocop:enable  Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
 #BLOCKS & PROCS
 
