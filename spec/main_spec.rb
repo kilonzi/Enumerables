@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rspec/autorun'
-require './main.rb'
+require './sample1.rb'
 
 RSpec.describe Enumerable do
   describe '=>My All?' do
@@ -24,9 +24,9 @@ RSpec.describe Enumerable do
 
   describe '=>My Each with Index' do
     it 'Returns an enumerator if no block is given, else yields' do
-      expect([1, 2, 3, 5].my_each_with_index { |_k, v| v }).to eq([1, 2, 3, 5])
-      expect([1, 2, 3, 5].my_each_with_index { |_k, v| v + 1 }).to eq([2, 3, 4, 6])
-      expect([1, 2, 3, 5].my_each_with_index { |_k, v| v * 0 }).to eq([0, 0, 0, 0])
+      expect([1, 2, 3, 5].my_each_with_index { |k, v| v }).to eq([1, 2, 3, 5])
+      expect([1, 2, 3, 5].my_each_with_index { |k, v| v + 1 }).to eq([2, 3, 4, 6])
+      expect([1, 2, 3, 5].my_each_with_index { |k, v| v * 0 }).to eq([0, 0, 0, 0])
       expect([1, 2, 3, 5].my_each_with_index { |k, v| k * v }).to eq([0, 2, 6, 15])
       expect([1, 2, 3, 5].my_each_with_index).yield_self
     end
