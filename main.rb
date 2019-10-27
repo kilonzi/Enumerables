@@ -2,6 +2,7 @@
 
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module Enumerable
   def my_each
     return to_enum unless block_given?
@@ -36,12 +37,13 @@ module Enumerable
     selected_items
   end
 
+  # rubocop:disable  Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def my_all?(pattern = nil)
     result = true
     if block_given?
       my_each { |i| result &= (yield i) }
-    elsif
-      my_each { |i| result &= pattern === i }
+    elsif block_given? && !pattern.nil?
+      my_each { |i| result &= pattern == i }
     else
       my_each { |i| result &= i }
     end
@@ -78,6 +80,31 @@ module Enumerable
     true
   end
 
+  def my_inject(*args)
+    arr = to_a.dup
+    if args[0].nil?
+      operand = arr.shift
+    elsif args[1].nil? && !block_given?
+      symbol = args[0]
+      operand = arr.shift
+    elsif args[1].nil? && block_given?
+      operand = args[0]
+    else
+      operand = args[0]
+      symbol = args[1]
+    end
+
+    arr[0..-1].my_each do |i|
+      operand = if symbol
+                  operand.send(symbol, i)
+                else
+                  yield(operand, i)
+                end
+    end
+    operand
+  end
+  # rubocop:enable  Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+
   def my_count
     size
   end
@@ -104,34 +131,9 @@ module Enumerable
     end
     arr
   end
-
-  def my_inject(*args)
-    arr = to_a.dup
-    if args[0].nil?
-      operand = arr.shift
-    elsif args[1].nil? && !block_given?
-      symbol = args[0]
-      operand = arr.shift
-    elsif args[1].nil? && block_given?
-      operand = args[0]
-    else
-      operand = args[0]
-      symbol = args[1]
-    end
-
-    arr[0..-1].my_each do |i|
-      operand = if symbol
-                  operand.send(symbol, i)
-                else
-                  yield(operand, i)
-                end
-    end
-    operand
 end
-end
-
-# BLOCKS & PROCS
 
 def multiply_els(arr)
   arr.my_inject(1) { |a, b| a * b }
 end
+# rubocop:enable Metrics/ModuleLength
