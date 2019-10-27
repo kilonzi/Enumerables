@@ -1,107 +1,111 @@
-#The Enumarable project: Creating own methods
+# The Enumarable project: Creating own methods
 
 # frozen_string_literal: true
 
 module Enumerable
-    def my_each
-      return to_enum unless block_given?
-      tmp = is_a?(Range) ? to_a : self
-      i = 0
-      result = []
-      while i < tmp.size
-        result << yield(tmp[i])
-        i += 1
-      end
-      result
-    end
+  def my_each
+    return to_enum unless block_given?
 
-    def my_each_with_index
-      return to_enum :my_each_with_index unless block_given?
-      result = []
-      k = 0
-      my_each do |v|
-        result << yield(k,v)
-        k += 1
-      end
-      result
+    tmp = is_a?(Range) ? to_a : self
+    i = 0
+    result = []
+    while i < tmp.size
+      result << yield(tmp[i])
+      i += 1
     end
+    result
+  end
 
-    def my_select
-      return to_enum :my_select unless block_given?
-      selected_items = []
-      my_each { |i| selected_items.push(i) if yield(i) }
-      selected_items
+  def my_each_with_index
+    return to_enum :my_each_with_index unless block_given?
+
+    result = []
+    k = 0
+    my_each do |v|
+      result << yield(k, v)
+      k += 1
     end
+    result
+  end
 
-    def my_all?(pattern = nil)
-      result = true
-      if block_given?
-        self.my_each{|i| result &= (yield i) }
-      elsif 
-        self.my_each {|i| result &= pattern === i }
+  def my_select
+    return to_enum :my_select unless block_given?
+
+    selected_items = []
+    my_each { |i| selected_items.push(i) if yield(i) }
+    selected_items
+  end
+
+  def my_all?(pattern = nil)
+    result = true
+    if block_given?
+      my_each { |i| result &= (yield i) }
+    elsif
+      my_each { |i| result &= pattern === i }
+    else
+      my_each { |i| result &= i }
+    end
+    result
+  end
+
+  def my_any?(pattern = nil)
+    if block_given?
+      my_each { |i| return true if yield(i) }
+    elsif pattern.class == Class
+      my_each { |i| return true if i.class == pattern }
+    elsif pattern.class == Regexp
+      my_each { |i| return true if i =~ pattern }
+    elsif pattern.nil?
+      my_each { |i| return true if i }
+    else
+      my_each { |i| return true if i == pattern }
+    end
+    false
+  end
+
+  def my_none?(pattern = nil)
+    if block_given?
+      my_each { |i| return false if yield(i) }
+    elsif pattern.class == Class
+      my_each { |i| return false if i.class == pattern }
+    elsif pattern.class == Regexp
+      my_each { |i| return false if i =~ pattern }
+    elsif pattern.nil?
+      my_each { |i| return false if i }
+    else
+      my_each { |i| return false if i == pattern }
+    end
+    true
+  end
+
+  def my_count
+    size
+  end
+
+  # NB: Commented because it was amended in Step 8 of the project
+
+  # def my_map
+  #   raise LocalJumpError, 'You have not given a block to the method' unless block_given?
+  #   mapped = []
+  #   self.my_each {|x|mapped.push(yield(x))}
+  #   mapped
+  # end
+
+  def my_map(arg = nil)
+    return to_enum :my_select unless block_given?
+
+    arr = []
+    my_each do |i|
+      if !arg.nil?
+        arr.push(arg.call(i))
       else
-        self.my_each { |i| result &= i }  
-      end  
-      result
-    end
-
-    def my_any?(pattern = nil)
-      if block_given?
-        my_each { |i| return true if yield(i) }
-      elsif pattern.class == Class
-        my_each { |i| return true if i.class == pattern }
-      elsif pattern.class == Regexp
-        my_each { |i| return true if i =~ pattern }
-      elsif pattern.nil?
-        my_each { |i| return true if i }
-      else
-        my_each { |i| return true if i == pattern }
+        arr.push(yield(i))
       end
-      false
     end
+    arr
+  end
 
-    def my_none?(pattern = nil)
-      if block_given?
-        my_each { |i| return false if yield(i) }
-      elsif pattern.class == Class
-        my_each { |i| return false if i.class == pattern }
-      elsif pattern.class == Regexp
-        my_each { |i| return false if i =~ pattern }
-      elsif pattern.nil?
-        my_each { |i| return false if i }
-      else
-        my_each { |i| return false if i == pattern }
-      end
-      true
-    end
-    
-    def my_count
-      self.size
-    end
-
-    # NB: Commented because it was amended in Step 8 of the project
-
-    # def my_map
-    #   raise LocalJumpError, 'You have not given a block to the method' unless block_given?
-    #   mapped = []
-    #   self.my_each {|x|mapped.push(yield(x))}
-    #   mapped
-    # end
-
-    def my_map(arg = nil)
-      return to_enum :my_select unless block_given?
-      arr = []
-      my_each do |i|
-        if !arg.nil?
-          arr.push(arg.call(i))
-        else
-          arr.push(yield(i))
-        end
-      end
-      arr
-    end
-
-    def my_inject(*args)
+  def my_inject(*args)
     arr = to_a.dup
     if args[0].nil?
       operand = arr.shift
@@ -123,10 +127,10 @@ module Enumerable
                 end
     end
     operand
-  end
+end
 end
 
-#BLOCKS & PROCS
+# BLOCKS & PROCS
 
 def multiply_els(arr)
   arr.my_inject(1) { |a, b| a * b }
