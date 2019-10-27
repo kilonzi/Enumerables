@@ -3,57 +3,76 @@
 # frozen_string_literal: true
 
 module Enumerable
-
     def my_each
-      raise LocalJumpError, 'You have not given a block to the method' unless block_given?
-      for el in self
-        yield el
+      return to_enum unless block_given?
+      tmp = is_a?(Range) ? to_a : self
+      i = 0
+      result = []
+      while i < tmp.size
+        result << yield(tmp[i])
+        i += 1
       end
+      result
     end
 
     def my_each_with_index
-        raise LocalJumpError, 'You have not given a block to the method' unless block_given?
-        i = 0
-        for el in self
-            yield i,el
-            i+=1 
-        end
+      return to_enum :my_each_with_index unless block_given?
+      result = []
+      k = 0
+      my_each do |v|
+        result << yield(k,v)
+        k += 1
+      end
+      result
     end
 
     def my_select
-      raise LocalJumpError, 'You have not given a block to the method' unless block_given?
+      return to_enum :my_select unless block_given?
       selected_items = []
       my_each { |i| selected_items.push(i) if yield(i) }
       selected_items
     end
 
-    def my_all?
-      raise LocalJumpError, 'You have not given a block to the method' unless block_given?
+    def my_all?(pattern = nil)
       result = true
-      self.my_each do |e|
-        unless yield(e)
-          result = false
-          break
-        end
-      end
+      if block_given?
+        self.my_each{|i| result &= (yield i) }
+      elsif 
+        self.my_each {|i| result &= pattern === i }
+      else
+        self.my_each { |i| result &= i }  
+      end  
       result
     end
 
-    def my_any?
-      raise LocalJumpError, 'You have not given a block to the method' unless block_given?
-      result = false
-      self.my_each do |e|
-        unless yield(e)
-          result = true
-          break
-        end
+    def my_any?(pattern = nil)
+      if block_given?
+        my_each { |i| return true if yield(i) }
+      elsif pattern.class == Class
+        my_each { |i| return true if i.class == pattern }
+      elsif pattern.class == Regexp
+        my_each { |i| return true if i =~ pattern }
+      elsif pattern.nil?
+        my_each { |i| return true if i }
+      else
+        my_each { |i| return true if i == pattern }
       end
-      result
+      false
     end
 
-    def my_none?
-      raise LocalJumpError, 'You have not given a block to the method' unless block_given?
-      return true if !self.my_any?{|x| yield x}
+    def my_none?(pattern = nil)
+      if block_given?
+        my_each { |i| return false if yield(i) }
+      elsif pattern.class == Class
+        my_each { |i| return false if i.class == pattern }
+      elsif pattern.class == Regexp
+        my_each { |i| return false if i =~ pattern }
+      elsif pattern.nil?
+        my_each { |i| return false if i }
+      else
+        my_each { |i| return false if i == pattern }
+      end
+      true
     end
     
     def my_count
@@ -70,7 +89,7 @@ module Enumerable
     # end
 
     def my_map(arg = nil)
-      raise LocalJumpError, 'You have not given a block to the method' unless block_given?
+      return to_enum :my_select unless block_given?
       arr = []
       my_each do |i|
         if !arg.nil?
@@ -82,14 +101,29 @@ module Enumerable
       arr
     end
 
-    def my_inject(obj=nil)
-      raise LocalJumpError, 'You have not given a block to the method' unless block_given?
-      accumulator = obj ? obj : 0
-      self.my_each do |e|
-        accumulator = yield(accumulator, e)
-      end
-      accumulator
+    def my_inject(*args)
+    arr = to_a.dup
+    if args[0].nil?
+      operand = arr.shift
+    elsif args[1].nil? && !block_given?
+      symbol = args[0]
+      operand = arr.shift
+    elsif args[1].nil? && block_given?
+      operand = args[0]
+    else
+      operand = args[0]
+      symbol = args[1]
     end
+
+    arr[0..-1].my_each do |i|
+      operand = if symbol
+                  operand.send(symbol, i)
+                else
+                  yield(operand, i)
+                end
+    end
+    operand
+  end
 end
 
 #BLOCKS & PROCS
@@ -97,8 +131,3 @@ end
 def multiply_els(arr)
   arr.my_inject(1) { |a, b| a * b }
 end
-
-a = [1,2,64].my_each{|n| n}
-p a == [1,2,64]
-c = multiply_els([2, 4, 5])
-p c == 40

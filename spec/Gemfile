@@ -1,0 +1,6 @@
+source 'https://rubygems.org' do
+    gem "rspec-core",">=3.9.0"
+    gem "rspec-expectations",">=3.9.0"
+    gem "rspec-mocks",">=3.9.0"
+    gem "rspec-support", ">=3.9.0"
+end
