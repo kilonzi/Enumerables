@@ -41,6 +41,7 @@ module Enumerable
 
   def my_all?
     return true if self == []
+
     truth = true
     if block_given?
       (0...length).each do |i|
