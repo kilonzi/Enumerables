@@ -6,16 +6,16 @@ require './main.rb'
 RSpec.describe Enumerable do
   describe '=>My All?' do
     context 'When a Block is given' do
-      it{expect(%w[an bear cat].my_all? { |word| word.length >= 3 }).to eq(false)}
+      it { expect(%w[an bear cat].my_all? { |word| word.length >= 3 }).to eq(false) }
     end
-    context 'When a Class is passed' do  
-      it{expect([1, 2, 3].my_all?(Numeric)).to eq(true)}
+    context 'When a Class is passed' do
+      it { expect([1, 2, 3].my_all?(Numeric)).to eq(true) }
     end
     context 'When a Regex is passed' do
-      it{expect(%w[ant bear cat].my_all?(/a/)).to eq(true)}
+      it { expect(%w[ant bear cat].my_all?(/a/)).to eq(true) }
     end
     context 'When NIL is passed' do
-      it{expect([nil, true, 99].my_all?).to eq(false)}
+      it { expect([nil, true, 99].my_all?).to eq(false) }
     end
   end
 
@@ -30,19 +30,19 @@ RSpec.describe Enumerable do
 
   describe '=>My Each with Index' do
     context 'Select the value' do
-      it{expect([1, 2, 3, 5].my_each_with_index { |_k, v| v }).to eq([1, 2, 3, 5])}
+      it { expect([1, 2, 3, 5].my_each_with_index { |_k, v| v }).to eq([1, 2, 3, 5]) }
     end
     context 'Value add something' do
-      it{expect([1, 2, 3, 5].my_each_with_index { |_k, v| v + 1 }).to eq([2, 3, 4, 6])}
+      it { expect([1, 2, 3, 5].my_each_with_index { |_k, v| v + 1 }).to eq([2, 3, 4, 6]) }
     end
     context 'Value multiplied by zero' do
-      it{expect([1, 2, 3, 5].my_each_with_index { |_k, v| v * 0 }).to eq([0, 0, 0, 0])}
+      it { expect([1, 2, 3, 5].my_each_with_index { |_k, v| v * 0 }).to eq([0, 0, 0, 0]) }
     end
     context 'Value multiplied by index' do
-      it{expect([1, 2, 3, 5].my_each_with_index { |k, v| k * v }).to eq([0, 2, 6, 15])}
+      it { expect([1, 2, 3, 5].my_each_with_index { |k, v| k * v }).to eq([0, 2, 6, 15]) }
     end
     context 'When nothing is passed' do
-      it{expect([1, 2, 3, 5].my_each_with_index).yield_self}
+      it { expect([1, 2, 3, 5].my_each_with_index).yield_self }
     end
   end
 
