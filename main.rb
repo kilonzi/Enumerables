@@ -38,21 +38,9 @@ module Enumerable
   end
 
   # rubocop:disable  Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-  # def my_all?(pattern = nil)
-  #   result = true
-  #   if block_given?
-  #     my_each { |i| result &= (yield i) }
-  #   elsif block_given? && pattern != nil
-  #     my_each { |i| result &= pattern == i }
-  #   elsif pattern != nil
-  #     my_each { |i| result &= i.nil? }
-  #   end
-  #   result
-  # end
 
   def my_all?
     return true if self == []
-
     truth = true
     if block_given?
       (0...length).each do |i|
