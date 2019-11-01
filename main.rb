@@ -23,7 +23,7 @@ module Enumerable
     result = []
     k = 0
     my_each do |v|
-      result << yield(k, v)
+      result << yield(v, k)
       k += 1
     end
     result
